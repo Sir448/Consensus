@@ -5,17 +5,33 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 
 @Controller
 public class ConsensusController {
 
 //    @MessageMapping("/hello")
 //    @SendTo("/topic/greetings")
-    @SubscribeMapping("/topic/greetings")
-    public Greeting greeting(HelloMessage message) throws Exception {
-        Thread.sleep(1000); // simulated delay
-        System.out.println("Test");
-        return new Greeting("Hello, " + message.getName() + "!");
+//    public Greeting greeting(HelloMessage message) throws Exception {
+//        Thread.sleep(1000); // simulated delay
+//        System.out.println("Test");
+//        return new Greeting("Hello, " + message.getName() + "!");
+//    }
+
+    @MessageMapping("/hello")
+    @SendTo("/topic/greetings")
+    public Map<String, Object> test(Map<String, Object> message) throws Exception {
+//        Thread.sleep(1000); // simulated delay
+
+        System.out.println(message);
+//        return new Greeting("Hello, " + message.getName() + "!");
+        Map<String, Object> test = new HashMap<>();
+        test.put("content", "this is a test");
+        return test;
     }
 
 /*
