@@ -1,4 +1,5 @@
 var stompClient = null;
+var options = [];
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -18,9 +19,12 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/greetings', function (test) {
-            showGreeting(JSON.parse(test.body).content);
+        stompClient.subscribe('/topic/session/2', function (test) {
+            showGreeting(JSON.parse(test.body));
         });
+//        stompClient.subscribe('/test/2', function (test) {
+//                    showGreeting(JSON.parse(test.body).content);
+//        });
     });
 }
 
@@ -33,13 +37,26 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/hello", {}, JSON.stringify({'name': $("#name").val()}));
-//    $("#greetings").append("<tr><td>Test:" + JSON.stringify({'name': $("#name").val()}) + "</td></tr>");
+    stompClient.send("/app/addOptions/session/2", {}, JSON.stringify({'options':options}));
+//    stompClient.send("/app/changeSettings/session/2", {}, JSON.stringify({'Decision_Type': 1, 'Majority': 3}));
+//    stompClient.send("/app/changeSettings/session/5", {}, JSON.stringify({'name': $("#name").val()}));
+//    $("#greetings").append("<tr><td>Test:" + JSON.stringify({'Decision_Type': $("#decision_type").val(), 'Majority': $("#majority").val()}) + "</td></tr>");
+//    $("#greetings").append("<tr><td>" + $("#name").val() + "</td></tr>");
+}
+
+function addName(){
     $("#greetings").append("<tr><td>" + $("#name").val() + "</td></tr>");
+    options.push($("#name").val());
+    $("#name").val('');
 }
 
 function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+    var output = "{"
+    for (const key in message){
+        output += `<br> ${key}: ${message[key]},`;
+    }
+    output+="<br>}"
+    $("#greetings").append("<tr><td>" + output + "</td></tr>");
 }
 
 $(function () {
@@ -48,5 +65,16 @@ $(function () {
     });
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
+    $("#add").click(function(){addName();});
+    $( "#send" ).click(function() {
+//     for(var i = 0; i < options.length; i++){
+        $("#greetings").empty();
+        sendName();
+        options = [];
+//     }
+//        $("#greetings").val('');
+     });
+//    $("#send").click(function() {
+//        $("#greetings").append("<tr><td>" + options[0] + "</td></tr>");
+//    });
 });

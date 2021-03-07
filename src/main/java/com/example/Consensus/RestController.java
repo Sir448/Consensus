@@ -8,15 +8,18 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.Session;
 import java.math.BigInteger;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 
-@RestController
-public class Controller {
+@org.springframework.web.bind.annotation.RestController
+public class RestController {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -87,7 +90,40 @@ public class Controller {
                 },
                 keyHolder
         );
-
         return keyHolder.getKey().intValue();
+    }
+
+//    @PostMapping("/addOption")
+//    public void addOption(@RequestBody Map<String,String[]> message){
+//        var options = message.get("options");
+////        System.out.println(message);
+////        System.out.println(message.keySet());
+////        System.out.println(message.get("test"));
+////        System.out.println(message.get("options"));
+//        for(String item : options){
+//            System.out.println(item);
+//        }
+//    }
+
+    @PostMapping("/addOption/session")
+    public String addOption(@RequestBody Map<String, String[]> message){
+        String query = "INSERT INTO Consensus.dbo.OPTIONS(Name, approvalCount, rejectionCount, Session_ID) VALUES";
+        int id = 2;
+        for(String item : message.get("options")) {
+//            System.out.println(item);
+            query += String.format(" (\'%s\', 0, 0, %d),",item,id);
+        }
+        query = query.substring(0,query.length() - 1);
+        System.out.println(query);
+        return query;
+    }
+
+    @PostMapping("/test")
+    public void test(){
+        List<String> options = jdbcTemplate.queryForList("SELECT Name FROM Consensus.dbo.OPTIONS WHERE Session_ID = ?", new Object[] {2}, new int[] {Types.INTEGER},String.class);
+        System.out.println(options);
+        System.out.println(options.contains("test"));
+        System.out.println(options.contains("hello"));
+        System.out.println("INSERT INTO Consensus.dbo.OPTIONS(Name, approvalCount, rejectionCount, Session_ID) VALUES".length());
     }
 }
